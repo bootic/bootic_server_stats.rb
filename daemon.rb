@@ -35,12 +35,14 @@ Daemons.run_proc('bootic_server_stats') do
   host_and_port = ENV['DATAGRAM_IO_UDP_HOST']
   tracker = Tracker.new(host_and_port)
   hostname = `hostname`.chomp
+  num_cpu = (cpus = ENV['NUM_CPUS']) ? cpus.to_f : Sys::CPU.num_cpu.to_f
+  
   puts "#{Time.now.to_s} Tracking load avg for '#{hostname}' to #{host_and_port}"
   every_n_seconds(15) do
     
     tracker.track('load_avg', {
       :app      => 'server_stats',
-      :status   => Sys::CPU.load_avg.first / Sys::CPU.num_cpu.to_f,
+      :status   => Sys::CPU.load_avg.first / num_cpu,
       :account  => hostname
     })
   end
